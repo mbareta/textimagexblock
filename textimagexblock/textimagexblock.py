@@ -16,8 +16,8 @@ class TextImageXBlock(XBlock):
     # self.<fieldname>.
 
     background_url = String(help="URL of the background image", default=None, scope=Scope.content)
-    mit_type = String(help="Type: text or image", default='text', scope=Scope.content)
-    text_color = String(help="Color of displayed text", default='white', scope=Scope.content)
+    mit_type = String(help="Type: text or image", default='text', scope=Scope.settings)
+    text_color = String(help="Color of displayed text", default='#ffffff', scope=Scope.content)
     header_text = String(help="Header text content", default='', scope=Scope.content)
     content_text = String(help="Paragraph text content", default='', scope=Scope.content)
 
@@ -68,9 +68,7 @@ class TextImageXBlock(XBlock):
         frag.add_javascript(self.resource_string("static/js/src/studio_view.js"))
         frag.initialize_js('StudioEditSubmit')
 
-
         return frag
-
 
     @XBlock.json_handler
     def studio_submit(self, data, suffix=''):
