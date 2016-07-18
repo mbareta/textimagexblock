@@ -16,6 +16,7 @@ class TextImageXBlock(XBlock):
     # self.<fieldname>.
 
     background_url = String(help="URL of the background image", default=None, scope=Scope.content)
+    mit_type = String(help="Type: text or image", default='text', scope=Scope.content)
     text_color = String(help="Color of displayed text", default='white', scope=Scope.content)
     header_text = String(help="Header text content", default='', scope=Scope.content)
     content_text = String(help="Paragraph text content", default='', scope=Scope.content)
@@ -34,6 +35,7 @@ class TextImageXBlock(XBlock):
         html_str = pkg_resources.resource_string(__name__, "static/html/textimagexblock.html")
         frag = Fragment(unicode(html_str).format(
                                                 display_name=self.display_name,
+                                                mit_type=self.mit_type,
                                                 background_url=self.background_url,
                                                 text_color=self.text_color,
                                                 header_text=self.header_text,
@@ -55,6 +57,7 @@ class TextImageXBlock(XBlock):
         # display variables
         frag = Fragment(unicode(html_str).format(
                                                 display_name=self.display_name,
+                                                mit_type=self.mit_type,
                                                 background_url=self.background_url,
                                                 text_color=self.text_color,
                                                 header_text=self.header_text,
@@ -75,6 +78,7 @@ class TextImageXBlock(XBlock):
         Called when submitting the form in Studio.
         """
         self.display_name = data.get('display_name')
+        self.mit_type = data.get('mit_type')
         self.background_url = data.get('background_url')
         self.text_color = data.get('text_color')
         self.header_text = data.get('header_text')

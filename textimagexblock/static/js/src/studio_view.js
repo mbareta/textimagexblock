@@ -3,6 +3,7 @@ function StudioEditSubmit(runtime, element) {
     var handlerUrl = runtime.handlerUrl(element, 'studio_submit');
     var data = {
       display_name: $(element).find('input[name=display_name]').val(),
+      mit_type: $(element).find('select[name=mit_type]').val(),
       background_url: $(element).find('input[name=background_url]').val(),
       text_color: $(element).find('input[name=text_color]').val(),
       header_text: $(element).find('input[name=header_text]').val(),
