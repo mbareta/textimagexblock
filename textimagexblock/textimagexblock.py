@@ -39,7 +39,7 @@ class TextImageXBlock(XBlock):
         when viewing courses.
         """
         image_file = default_storage.open(self.background_url)
-        image = 'data:image/gif;base64,' + base64.b64encode(image_file.read())
+        image = 'data:image;base64,' + base64.b64encode(image_file.read())
         html_str = pkg_resources.resource_string(__name__, "static/html/textimagexblock.html")
         frag = Fragment(unicode(html_str).format(
                                                 display_name=self.display_name,
