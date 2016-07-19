@@ -1,10 +1,16 @@
 """TO-DO: Write a description of what this XBlock is."""
 
 import pkg_resources
+import base64
+
+from django.core.files import File
+from django.core.files.storage import default_storage
 
 from xblock.core import XBlock
 from xblock.fields import Scope, Integer, String
 from xblock.fragment import Fragment
+
+from webob.response import Response
 
 
 class TextImageXBlock(XBlock):
@@ -32,11 +38,13 @@ class TextImageXBlock(XBlock):
         The primary view of the TextImageXBlock, shown to students
         when viewing courses.
         """
+        image_file = default_storage.open(self.background_url)
+        image = 'data:image/gif;base64,' + base64.b64encode(image_file.read())
         html_str = pkg_resources.resource_string(__name__, "static/html/textimagexblock.html")
         frag = Fragment(unicode(html_str).format(
                                                 display_name=self.display_name,
                                                 mit_type=self.mit_type,
-                                                background_url=self.background_url,
+                                                background_url=image,
                                                 text_color=self.text_color,
                                                 header_text=self.header_text,
                                                 content_text=self.content_text
@@ -70,19 +78,38 @@ class TextImageXBlock(XBlock):
 
         return frag
 
-    @XBlock.json_handler
-    def studio_submit(self, data, suffix=''):
+    @XBlock.handler
+    def studio_submit(self, request, suffix=''):
         """
         Called when submitting the form in Studio.
         """
-        self.display_name = data.get('display_name')
-        self.mit_type = data.get('mit_type')
-        self.background_url = data.get('background_url')
-        self.text_color = data.get('text_color')
-        self.header_text = data.get('header_text')
-        self.content_text = data.get('content_text')
+        data = request.POST
+        self.display_name = data['display_name']
+        self.mit_type = data['mit_type']
+        self.text_color = data['text_color']
+        self.header_text = data['header_text']
+        self.content_text = data['content_text']
 
-        return {'result': 'success'}
+        if not isinstance(data['background'], basestring):
+            upload = data['background']
+            path = self._file_storage_path(upload.file.name)
+            self.background_url = default_storage.save(path, File(upload.file))
+
+        return Response(json_body={'result': 'success'})
+
+    def _file_storage_path(self, filename):
+        # pylint: disable=no-member
+        """
+        Get file path of storage.
+        """
+        path = (
+            '{loc.org}/{loc.course}/{loc.block_type}/{loc.block_id}'
+            '/{filename}'.format(
+                loc=self.location,
+                filename=filename
+            )
+        )
+        return path
 
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.
