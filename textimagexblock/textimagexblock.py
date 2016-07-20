@@ -2,15 +2,17 @@
 
 import pkg_resources
 import base64
+from functools import partial
 
-from django.core.files import File
-from django.core.files.storage import default_storage
+from django.conf import settings
 
 from xblock.core import XBlock
 from xblock.fields import Scope, Integer, String
 from xblock.fragment import Fragment
 
 from webob.response import Response
+from xmodule.contentstore.content import StaticContent
+from xmodule.contentstore.django import contentstore
 
 
 class TextImageXBlock(XBlock):
@@ -37,14 +39,13 @@ class TextImageXBlock(XBlock):
         """
         The primary view of the TextImageXBlock, shown to students
         when viewing courses.
-        """
-        image_file = default_storage.open(self.background_url)
-        image = 'data:image;base64,' + base64.b64encode(image_file.read())
+        """ 
+
         html_str = pkg_resources.resource_string(__name__, "static/html/textimagexblock.html")
         frag = Fragment(unicode(html_str).format(
                                                 display_name=self.display_name,
                                                 mit_type=self.mit_type,
-                                                background_url=image,
+                                                background_url=self.background_url,
                                                 text_color=self.text_color,
                                                 header_text=self.header_text,
                                                 content_text=self.content_text
@@ -92,18 +93,35 @@ class TextImageXBlock(XBlock):
 
         if not isinstance(data['background'], basestring):
             upload = data['background']
-            path = self._file_storage_path(upload.file.name)
-            self.background_url = default_storage.save(path, File(upload.file))
+
+            filename = self._file_storage_name(upload.file.name)
+            content_location = StaticContent.compute_location(self.location.course_key, filename)
+    
+            chunked = upload.file.multiple_chunks()
+            sc_partial = partial(StaticContent, content_location, filename, upload.file.content_type)
+            if chunked:
+                content = sc_partial(upload.file.chunks())
+                tempfile_path = upload.file.temporary_file_path()
+            else:
+                content = sc_partial(upload.file.read())
+                tempfile_path = None
+
+            contentstore().save(content)
+
+            # readback the saved content - we need the database timestamp
+            readback = contentstore().find(content.location)
+            locked = getattr(content, 'locked', False)
+            self.background_url = StaticContent.serialize_asset_key_with_slash(content.location)
 
         return Response(json_body={'result': 'success'})
 
-    def _file_storage_path(self, filename):
+    def _file_storage_name(self, filename):
         # pylint: disable=no-member
         """
         Get file path of storage.
         """
         path = (
-            '{loc.org}/{loc.course}/{loc.block_type}/{loc.block_id}'
+            '{loc.block_type}/{loc.block_id}'
             '/{filename}'.format(
                 loc=self.location,
                 filename=filename
