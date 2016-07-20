@@ -1,7 +1,6 @@
 """TO-DO: Write a description of what this XBlock is."""
 
 import pkg_resources
-import base64
 from functools import partial
 
 from django.conf import settings
