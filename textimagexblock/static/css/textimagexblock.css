@@ -27,24 +27,16 @@
 }
 
 .textimagexblock-wrapper .header-text {
-  font-size: 32px;
+  font-size: 58px;
+  font-family: serif;
   color: white;
   margin: 1em 0;
   padding: 0;
   text-align: left;
 }
 
-.textimagexblock-wrapper hr {
-  width: 25%;
-  margin-left: 0;
-  border: 0;
-  height: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-}
-
 .textimagexblock-wrapper .content-text {
-  font-size: 16px;
+  font-size: 29px;
   color: white;
   text-align: justify;
   margin: 2em 0;
