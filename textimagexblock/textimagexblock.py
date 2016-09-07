@@ -21,7 +21,10 @@ class TextImageXBlock(XBlock):
 
     # Fields are defined on the class.  You can access them in your code as
     # self.<fieldname>.
-
+    display_name = String(display_name="Display Name",
+                          default="Image",
+                          scope=Scope.settings,
+                          help="This name appears in the horizontal navigation at the top of the page.")
     background_url = String(help="URL of the background image", default=None, scope=Scope.content)
     mit_type = String(help="Type: text or image", default='text', scope=Scope.settings)
     text_color = String(help="Color of displayed text", default='#ffffff', scope=Scope.content)
