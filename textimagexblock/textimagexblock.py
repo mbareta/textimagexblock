@@ -88,6 +88,7 @@ class TextImageXBlock(XBlock):
         data = request.POST
         self.display_name = data['display_name']
         self.display_description = data['display_description']
+        self.thumbnail_url = data['thumbnail_url']
         self.mit_type = data['mit_type']
         self.text_color = data['text_color']
         self.header_text = data['header_text']
