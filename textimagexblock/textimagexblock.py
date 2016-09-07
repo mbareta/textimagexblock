@@ -38,7 +38,7 @@ class TextImageXBlock(XBlock):
         """
         The primary view of the TextImageXBlock, shown to students
         when viewing courses.
-        """ 
+        """
 
         html_str = pkg_resources.resource_string(__name__, "static/html/textimagexblock.html")
         frag = Fragment(unicode(html_str).format(
@@ -65,6 +65,8 @@ class TextImageXBlock(XBlock):
         # display variables
         frag = Fragment(unicode(html_str).format(
                                                 display_name=self.display_name,
+                                                display_description=self.display_description,
+                                                thumbnail_url=self.thumbnail_url,
                                                 mit_type=self.mit_type,
                                                 background_url=self.background_url,
                                                 text_color=self.text_color,
@@ -85,6 +87,7 @@ class TextImageXBlock(XBlock):
         """
         data = request.POST
         self.display_name = data['display_name']
+        self.display_description = data['display_description']
         self.mit_type = data['mit_type']
         self.text_color = data['text_color']
         self.header_text = data['header_text']
@@ -95,7 +98,7 @@ class TextImageXBlock(XBlock):
 
             filename = self._file_storage_name(upload.file.name)
             content_location = StaticContent.compute_location(self.location.course_key, filename)
-    
+
             chunked = upload.file.multiple_chunks()
             sc_partial = partial(StaticContent, content_location, filename, upload.file.content_type)
             if chunked:
