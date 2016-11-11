@@ -4,6 +4,7 @@ import pkg_resources
 from functools import partial
 
 from django.conf import settings
+import uuid
 
 from xblock.core import XBlock
 from xblock.fields import Scope, Integer, String
@@ -12,7 +13,8 @@ from xblock.fragment import Fragment
 from webob.response import Response
 from xmodule.contentstore.content import StaticContent
 from xmodule.contentstore.django import contentstore
-
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 class TextImageXBlock(XBlock):
     """
@@ -89,13 +91,19 @@ class TextImageXBlock(XBlock):
         Called when submitting the form in Studio.
         """
         data = request.POST
+
         self.display_name = data['display_name']
         self.display_description = data['display_description']
-        self.thumbnail_url = data['thumbnail_url']
         self.mit_type = data['mit_type']
         self.text_color = data['text_color']
         self.header_text = data['header_text']
         self.content_text = data['content_text']
+
+        if not isinstance(data['thumbnail'], basestring):
+            upload = data['thumbnail']
+            thumbnail_uuid = str(uuid.uuid1())
+            relative_path = default_storage.save('/image/thumbnails/' + thumbnail_uuid + '_' + upload.file.name, ContentFile(upload.file.read()))
+            self.thumbnail_url = settings.AWS_S3_BASE_URL + settings.AWS_STORAGE_BUCKET_NAME + relative_path
 
         if not isinstance(data['background'], basestring):
             upload = data['background']

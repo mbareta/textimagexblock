@@ -5,7 +5,7 @@ function StudioEditSubmit(runtime, element) {
     var data = new FormData();
     data.append('display_name', $(element).find('input[name=display_name]').val());
     data.append('display_description', $(element).find('input[name=display_description]').val());
-    data.append('thumbnail_url', $(element).find('input[name=thumbnail_url]').val());
+    data.append('thumbnail', $(element).find('input[name=thumbnail]')[0].files[0]);
     data.append('mit_type', $(element).find('select[name=mit_type]').val());
     data.append('text_color', $(element).find('input[name=text_color]').val());
     data.append('header_text', $(element).find('input[name=header_text]').val());
@@ -21,7 +21,7 @@ function StudioEditSubmit(runtime, element) {
       cache: false,
       dataType: 'json',
       processData: false,
-      contentType: false,
+      contentType: false
     }).done(function(response) {
       runtime.notify('save', {state: 'end'});
     });
