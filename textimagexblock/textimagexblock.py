@@ -13,10 +13,11 @@ from xblock.fragment import Fragment
 from webob.response import Response
 from xmodule.contentstore.content import StaticContent
 from xmodule.contentstore.django import contentstore
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
 
-class TextImageXBlock(XBlock):
+from xblock_django.mixins import FileUploadMixin
+
+
+class TextImageXBlock(XBlock, FileUploadMixin):
     """
     TO-DO: document what your XBlock does.
     """
@@ -101,9 +102,7 @@ class TextImageXBlock(XBlock):
 
         if not isinstance(data['thumbnail'], basestring):
             upload = data['thumbnail']
-            thumbnail_uuid = str(uuid.uuid1())
-            relative_path = default_storage.save('/thumbnails/' + data['usage_id'] + '/' + thumbnail_uuid + '_' + upload.file.name, ContentFile(upload.file.read()))
-            self.thumbnail_url = settings.AWS_S3_BASE_URL + settings.AWS_STORAGE_BUCKET_NAME + relative_path
+            self.thumbnail_url = self.upload_to_s3('THUMBNAIL', upload.file, data['usage_id'])
 
         if not isinstance(data['background'], basestring):
             upload = data['background']
