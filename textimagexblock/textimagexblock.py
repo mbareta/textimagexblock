@@ -102,7 +102,7 @@ class TextImageXBlock(XBlock):
         if not isinstance(data['thumbnail'], basestring):
             upload = data['thumbnail']
             thumbnail_uuid = str(uuid.uuid1())
-            relative_path = default_storage.save('/image/thumbnails/' + thumbnail_uuid + '_' + upload.file.name, ContentFile(upload.file.read()))
+            relative_path = default_storage.save('/thumbnails/' + data['usage_id'] + '/' + thumbnail_uuid + '_' + upload.file.name, ContentFile(upload.file.read()))
             self.thumbnail_url = settings.AWS_S3_BASE_URL + settings.AWS_STORAGE_BUCKET_NAME + relative_path
 
         if not isinstance(data['background'], basestring):
