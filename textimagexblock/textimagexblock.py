@@ -4,6 +4,7 @@ import pkg_resources
 from functools import partial
 
 from django.conf import settings
+import uuid
 
 from xblock.core import XBlock
 from xblock.fields import Scope, Integer, String
@@ -13,8 +14,10 @@ from webob.response import Response
 from xmodule.contentstore.content import StaticContent
 from xmodule.contentstore.django import contentstore
 
+from xblock_django.mixins import FileUploadMixin
 
-class TextImageXBlock(XBlock):
+
+class TextImageXBlock(XBlock, FileUploadMixin):
     """
     TO-DO: document what your XBlock does.
     """
@@ -45,13 +48,13 @@ class TextImageXBlock(XBlock):
 
         html_str = pkg_resources.resource_string(__name__, "static/html/textimagexblock.html")
         frag = Fragment(unicode(html_str).format(
-                                                display_name=self.display_name,
-                                                mit_type=self.mit_type,
-                                                background_url=self.background_url,
-                                                text_color=self.text_color,
-                                                header_text=self.header_text,
-                                                content_text=self.content_text
-                                                ))
+            display_name=self.display_name,
+            mit_type=self.mit_type,
+            background_url=self.background_url,
+            text_color=self.text_color,
+            header_text=self.header_text,
+            content_text=self.content_text
+        ))
 
         frag.add_css(self.resource_string("static/css/textimagexblock.css"))
         frag.add_javascript(self.resource_string("static/js/src/textimagexblock.js"))
@@ -67,15 +70,14 @@ class TextImageXBlock(XBlock):
         html_str = pkg_resources.resource_string(__name__, "static/html/studio_view.html")
         # display variables
         frag = Fragment(unicode(html_str).format(
-                                                display_name=self.display_name,
-                                                display_description=self.display_description,
-                                                thumbnail_url=self.thumbnail_url,
-                                                mit_type=self.mit_type,
-                                                background_url=self.background_url,
-                                                text_color=self.text_color,
-                                                header_text=self.header_text,
-                                                content_text=self.content_text
-                                                ))
+            display_name=self.display_name,
+            display_description=self.display_description,
+            mit_type=self.mit_type,
+            background_url=self.background_url,
+            text_color=self.text_color,
+            header_text=self.header_text,
+            content_text=self.content_text
+        ))
 
         frag.add_css(self.resource_string("static/css/textimagexblock.css"))
         frag.add_javascript(self.resource_string("static/js/src/studio_view.js"))
@@ -89,35 +91,22 @@ class TextImageXBlock(XBlock):
         Called when submitting the form in Studio.
         """
         data = request.POST
+
         self.display_name = data['display_name']
         self.display_description = data['display_description']
-        self.thumbnail_url = data['thumbnail_url']
         self.mit_type = data['mit_type']
         self.text_color = data['text_color']
         self.header_text = data['header_text']
         self.content_text = data['content_text']
 
+        block_id = data['usage_id']
+        if not isinstance(data['thumbnail'], basestring):
+            upload = data['thumbnail']
+            self.thumbnail_url = self.upload_to_s3('THUMBNAIL', upload.file, block_id, self.thumbnail_url)
+
         if not isinstance(data['background'], basestring):
             upload = data['background']
-
-            filename = self._file_storage_name(upload.file.name)
-            content_location = StaticContent.compute_location(self.location.course_key, filename)
-
-            chunked = upload.file.multiple_chunks()
-            sc_partial = partial(StaticContent, content_location, filename, upload.file.content_type)
-            if chunked:
-                content = sc_partial(upload.file.chunks())
-                tempfile_path = upload.file.temporary_file_path()
-            else:
-                content = sc_partial(upload.file.read())
-                tempfile_path = None
-
-            contentstore().save(content)
-
-            # readback the saved content - we need the database timestamp
-            readback = contentstore().find(content.location)
-            locked = getattr(content, 'locked', False)
-            self.background_url = StaticContent.serialize_asset_key_with_slash(content.location)
+            self.background_url = self.upload_to_s3('BACKGROUND', upload.file, block_id, self.background_url)
 
         return Response(json_body={'result': 'success'})
 
