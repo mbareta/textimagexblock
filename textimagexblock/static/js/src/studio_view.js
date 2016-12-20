@@ -27,6 +27,16 @@ function StudioEditSubmit(runtime, element) {
         return;
     }
 
+    if (data.get('thumbnail').type.indexOf('image') !== 0) {
+        alert('Thumbnail does not have a correct format!');
+        return;
+    }
+
+    if (data.get('background').type.indexOf('image') !== 0) {
+        alert('Background image does not have a correct format!');
+        return;
+    }
+
     runtime.notify('save', {state: 'start'});
 
     $.ajax({
