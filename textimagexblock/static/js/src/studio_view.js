@@ -16,6 +16,17 @@ function StudioEditSubmit(runtime, element) {
     data.append('content_text', $element.find('textarea[name=content_text]').val().trim());
     data.append('background', $element.find('input[name=background]')[0].files[0]);
 
+    //file size in bytes
+    if (data.get('thumbnail').size > 2000000) {
+        alert('Thumbnail size is too large!');
+        return;
+    }
+
+    if (data.get('background').size > 8000000) {
+        alert('Background image size is too large!');
+        return;
+    }
+
     runtime.notify('save', {state: 'start'});
 
     $.ajax({
