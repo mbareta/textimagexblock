@@ -5,16 +5,53 @@ function StudioEditSubmit(runtime, element) {
   $element.find('.save-button').bind('click', function() {
     var handlerUrl = runtime.handlerUrl(element, 'studio_submit');
 
+    var usageId = $element.data('usage-id');
+    var displayName = $element.find('input[name=display_name]').val();
+    var displayDescription = $element.find('input[name=display_description]').val();
+    var thumbnail = $element.find('input[name=thumbnail]')[0].files[0];
+    var mitType = $element.find('select[name=mit_type]').val();
+    var textColor = $element.find('input[name=text_color]').val();
+    var headerText = $element.find('input[name=header_text]').val();
+    var contentText = $element.find('textarea[name=content_text]').val().trim();
+    var background = $element.find('input[name=background]')[0].files[0];
+
+    function imagesAreValid() {
+      if (thumbnail != undefined) {
+        if (thumbnail.size > 2000000) {
+            alert('Thumbnail size is too large!');
+            return false;
+        }
+        if (thumbnail.type.indexOf('image') !== 0) {
+            alert('Thumbnail does not have a correct format!');
+            return false;
+        }
+      }
+      if (background != undefined) {
+        if (background.size > 8000000) {
+            alert('Background image size is too large!');
+            return false;
+        }
+        if (background.type.indexOf('image') !== 0) {
+            alert('Background image does not have a correct format!');
+            return false;
+        }
+      }
+      return true;
+    };
+    if (!imagesAreValid()) {
+      return;
+    }
+
     var data = new FormData();
-    data.append('usage_id', $element.data('usage-id'));
-    data.append('display_name', $element.find('input[name=display_name]').val());
-    data.append('display_description', $element.find('input[name=display_description]').val());
-    data.append('thumbnail', $element.find('input[name=thumbnail]')[0].files[0]);
-    data.append('mit_type', $element.find('select[name=mit_type]').val());
-    data.append('text_color', $element.find('input[name=text_color]').val());
-    data.append('header_text', $element.find('input[name=header_text]').val());
-    data.append('content_text', $element.find('textarea[name=content_text]').val().trim());
-    data.append('background', $element.find('input[name=background]')[0].files[0]);
+    data.append('usage_id', usageId);
+    data.append('display_name', displayName);
+    data.append('display_description', displayDescription);
+    data.append('thumbnail', thumbnail);
+    data.append('mit_type', mitType);
+    data.append('text_color', textColor);
+    data.append('header_text', headerText);
+    data.append('content_text', contentText);
+    data.append('background', background);
 
     runtime.notify('save', {state: 'start'});
 
