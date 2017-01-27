@@ -27,21 +27,41 @@
 }
 
 .textimagexblock-wrapper .header-text {
-  font-size: 58px;
-  font-family: serif;
+  font-size: 48px;
+  font-size: 3rem;
+  font-weight: 400;
   color: white;
   margin: 1em 0;
   padding: 0;
   text-align: left;
+  font-family: Lora;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 54px;
+  font-size: 3.375rem;
+  top: 60px;
+
 }
 
 .textimagexblock-wrapper .content-text {
-  font-size: 29px;
   color: white;
   text-align: justify;
   margin: 2em 0;
   padding: 0;
   white-space: pre-wrap;
+  font-family: "Hind", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  font-size: 1rem;
+}
+
+.textimagexblock-wrapper a {
+  background-color: rgba(201,74,6,.7);
+  padding: 4px;
+}
+
+.textimagexblock-wrapper a:hover {
+  background-color: rgba(201,74,6,1);
 }
 
 .textimage-studio textarea {
